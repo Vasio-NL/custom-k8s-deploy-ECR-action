@@ -1,0 +1,83 @@
+name: 'Kubernetes deploy action'
+description: 'Pushes Vasio images from Amazon ECR to a kubernetes cluster. Requires kubernetes cluster credentials'
+inputs:
+  aws-access-key-id:
+    description: 'AWS Access Key ID used to log in to Amazon ECR'
+    required: true
+    default: ''
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key used to log in to Amazon ECR'
+    required: true
+    default: ''
+  kube-config-base64:
+    description: 'The base64 encoded kubeconfig needed to connect to the cluster'
+    required: true
+    default: ''
+  container-registry-url:
+    description: 'URL for the container registry'
+    required: true
+    default: ''
+  container-repository-name:
+    description: 'The name of the container repository (middle part of the image tag)'
+    required: true
+    default: ''
+runs:
+  using: "composite"
+  steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ inputs.aws-access-key-id }}
+        aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+        aws-region: eu-west-1
+
+    - name: Log in to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Acquire kubeconfig.yml
+      run: echo ${{ inputs.kube-config-base64 }} | base64 -d > kubeconfig.yml
+      shell: bash
+
+    - name: Acquire deployment.yml
+      run: |
+        kustomize create
+        kustomize edit add resource "manifests/${{github.ref_name == github.event.repository.default_branch && 'production' || github.ref_name}}"
+        cd_versions=$(kubectl --kubeconfig=kubeconfig.yml get configmap cd-versions -o jsonpath='{.data}')
+        echo $cd_versions
+        cd_images=($(echo $cd_versions | jq -r 'keys[]'))
+        for image in "${cd_images[@]}"; do
+        kustomize edit set image $image=${{ steps.login-ecr.outputs.registry }}/${{ inputs.container-repository-name }}/$image:$(echo $cd_versions | jq -r ".\"$image\"")
+        done
+        kustomize build > deployment.yml
+      shell: bash
+
+    - name: Set up kustomize
+      uses: imranismail/setup-kustomize@v2
+
+    - name: Create kubeconfig.yml
+      run: echo ${{ inputs.kube-config-base64 }} | base64 -d > kubeconfig.yml
+      shell: bash
+
+    - name: Deployment.yml
+      run: cat deployment.yml
+      shell: bash
+
+    - name: Acquire kubectl
+      run: curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+      shell: bash
+
+    - name: Apply deployment.yml
+      run: kubectl --kubeconfig=kubeconfig.yml apply -f deployment.yml
+      shell: bash
+
+    - name: Check deployment status
+      run: |
+        kubectl --kubeconfig=kubeconfig.yml get deploy --output name | \
+        timeout 300 \
+        xargs -n1 -t \
+        kubectl --kubeconfig=kubeconfig.yml rollout status
+      shell: bash
