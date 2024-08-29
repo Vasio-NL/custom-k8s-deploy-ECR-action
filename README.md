@@ -5,6 +5,22 @@ This action is intended to be used with the custom [build and push to ECR action
 
 Fetches the latest version of the given image from a kubernetes configmap, then gets the image from Amazon ECR and pushes it to the kubernetes cluster.
 
+### Inputs
+
+| Name | Description                                       | Required |
+| --- |---------------------------------------------------| --- |
+| aws-access-key-id | The AWS access key id used to log in to Amazon ECR | true |
+| aws-secret-access-key | The secret access key used to log in to Amazon ECR | true |
+| container-repository-name | The name of the container repository  | true |
+| kube-config-base64 | The base64 encoded kubeconfig file | true |
+
+
+The container repository name is the name that is prefixed to the image name. An example image:
+
+`1234567890.dkr.ecr.eu-west-1.amazonaws.com/vasio/cool-project:latest`
+
+In this example, the container repository name is `vasio` and the image name is `cool-project`.
+
 ### Example usage
 
 The following is an example release job:
@@ -22,12 +38,6 @@ The following is an example release job:
           container-repository-name: vasio
           kube-config-base64: ${{ secrets.KUBE_CONFIG_B64 }}
 ```
-
-The container repository name is the name that is prefixed to the image name. An example image:
-
-`1234567890.dkr.ecr.eu-west-1.amazonaws.com/vasio/cool-project:latest`
-
-In this example, the container repository name is `vasio` and the image name is `cool-project`.
 
 ### For developers: Updating the action
 When making changes, make sure to tag new versions so they can be used in Github workflows. The action uses semantic versioning.
