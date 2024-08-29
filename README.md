@@ -1,5 +1,13 @@
-### Updating the action
-After pushing new changes, make sure to tag new versions so they can be used in our deployments. We use semantic versioning.
+## Kubernetes deploy action
+
+This Github Action deploys images from Amazon ECR to a kubernetes cluster.
+This action is intended to be used with the custom [build and push to ECR action.](https://github.com/Vasio-NL/custom-build-and-push-ECR-action)
+
+Fetches the latest version of the given image from a kubernetes configmap, then gets the image from Amazon ECR and pushes it to the kubernetes cluster.
+
+
+### For developers: Updating the action
+When making changes, make sure to tag new versions so they can be used in Github workflows. The action uses semantic versioning.
 
 To tag the version (v1.0.3 in the example):
 
