@@ -23,6 +23,11 @@ The following is an example release job:
           kube-config-base64: ${{ secrets.KUBE_CONFIG_B64 }}
 ```
 
+The container repository name is the name that is prefixed to the image name. An example image:
+
+`1234567890.dkr.ecr.eu-west-1.amazonaws.com/vasio/cool-project:latest`
+
+In this example, the container repository name is `vasio` and the image name is `cool-project`.
 
 ### For developers: Updating the action
 When making changes, make sure to tag new versions so they can be used in Github workflows. The action uses semantic versioning.
