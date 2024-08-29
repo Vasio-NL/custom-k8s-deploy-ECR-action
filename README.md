@@ -1,6 +1,8 @@
 ## Kubernetes deploy action
 
 This Github Action deploys images from Amazon ECR to a kubernetes cluster.
+For deploying images from a non-AWS container registry, see the [deploy action](https://github.com/Vasio-NL/custom-k8s-deploy-action).
+
 This action is intended to be used with the custom [build and push to ECR action.](https://github.com/Vasio-NL/custom-build-and-push-ECR-action)
 
 Fetches the latest version of the given image from a kubernetes configmap, then gets the image from Amazon ECR and pushes it to the kubernetes cluster.
