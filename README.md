@@ -5,8 +5,6 @@ For deploying images from a non-AWS container registry, see the [deploy action](
 
 This action is intended to be used with the custom [build and push to ECR action.](https://github.com/Vasio-NL/custom-build-and-push-ECR-action)
 
-Fetches the latest version of the given image from a kubernetes configmap, then fetches ECR details and pushes the image to the kubernetes cluster.
-
 ### Inputs
 
 | Name | Description                                       | Required |
