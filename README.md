@@ -21,10 +21,31 @@ The container registry name is the name that is prefixed to the image name. An e
 
 In this example, the container registry name is `vasio` and the image name is `cool-project`.
 
+### Example usage
+
+The following is an example release job:
+
+```
+  release:
+    runs-on: ubuntu-latest
+    needs: [ build-app ]
+    environment: ${{ github.ref_name }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+    
+      - uses: Vasio-NL/custom-k8s-deploy-ECR-action@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          container-registry-name: vasio
+          kube-config-base64: ${{ secrets.KUBE_CONFIG_B64 }}
+```
+
 ### Deployment manifests
 
 This action uses [kustomize](https://kustomize.io/) to bundle the deployment manifests. It assumes that the manifests are located in the `manifests` directory at the root level of the repository.
-It checks for a folder containing the name of the branch. An exception is made for the default branch, which will always check `manifests/production`. 
+It checks for a folder containing the name of the branch. An exception is made for the default branch, which will always check `manifests/production`.
 
 <b>Important:</b> The action assumes your repositoy's default branch is the production branch, and will always look for the production manifests when running this action from the default branch.
 
@@ -73,28 +94,6 @@ resources:
 patchesStrategicMerge:
   - update-deployment.yml
   - update-service.yml
-```
-
-
-### Example usage
-
-The following is an example release job:
-
-```
-  release:
-    runs-on: ubuntu-latest
-    needs: [ build-app ]
-    environment: ${{ github.ref_name }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-    
-      - uses: Vasio-NL/custom-k8s-deploy-ECR-action@v1
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          container-registry-name: vasio
-          kube-config-base64: ${{ secrets.KUBE_CONFIG_B64 }}
 ```
 
 ### For developers: Updating the action
