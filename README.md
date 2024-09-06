@@ -47,7 +47,7 @@ The following is an example release job:
 This action uses [kustomize](https://kustomize.io/) to bundle the deployment manifests. It assumes that the manifests are located in the `manifests` directory at the root level of the repository.
 It checks for a folder containing the name of the branch. An exception is made for the default branch, which will always check `manifests/production`.
 
-<b>Important:</b> The action assumes your repositoy's default branch is the production branch, and will always look for the production manifests when running this action from the default branch.
+<b>Important:</b> The action assumes your repository's default branch is the production branch, and will always look for the production manifests when running this action from the default branch.
 
 
 #### Example manifests structure
